@@ -57,8 +57,7 @@ def take_action(state, action):
 
 
 # Q-learning
-def q_learning(episodes,alpha,gamma,epsilon,q_table,strawberries=None):
-
+def q_learning(episodes,alpha,gamma,epsilon,q_table,strawberries=None):  
     for episode in range(episodes):
         state = (0, 0)
         visited_states.clear()  # Réinitialiser les états visités par épisode
@@ -82,14 +81,17 @@ def q_learning(episodes,alpha,gamma,epsilon,q_table,strawberries=None):
             )
             
             state = next_state
+            
+
         
         # Réduire epsilon au fil des épisodes pour diminuer l'exploration
         epsilon = max(0.1, epsilon * 0.99)  # Valeur minimale d'exploration
+    # print(f"Final Q-table shape: {q_table.shape}")
     return q_table
 
 
 
-def visualize_path(ax,env, path,title,strawberries=None):
+def visualize_path(ax,env, path,title,strawberries=None,color='blue'):
     grid_size = env.shape[0]
     
     # Dessiner les cases
@@ -109,7 +111,7 @@ def visualize_path(ax,env, path,title,strawberries=None):
         ax.plot(
             [start[1] + 0.5, end[1] + 0.5], 
             [grid_size - start[0] - 0.5, grid_size - end[0] - 0.5], 
-            color='blue', linewidth=2
+            color=color, linewidth=2
         )
     if strawberries:
         for strawberry in strawberries:
@@ -205,6 +207,8 @@ def find_optimal_path(q_table, source, objective):
 
     while current_state != objective:
         # Trouver l'action avec la Q-valeur maximale
+        # print("Current state: ",current_state)  
+        # print("Q-table shape: " ,q_table.shape) 
         action_index = np.argmax(q_table[current_state[0], current_state[1], :])
         action = actions[action_index]
 
@@ -213,7 +217,7 @@ def find_optimal_path(q_table, source, objective):
 
         # Vérifier si l'état suivant est valide (pas un obstacle)
         if env[next_state[0], next_state[1]] == 1:
-            print(f"Erreur : Le chemin passe par un obstacle à {next_state} !")
+            # print(f"Erreur : Le chemin passe par un obstacle à {next_state} !")
             break
 
         # Ajouter l'état suivant au chemin
@@ -225,3 +229,24 @@ def find_optimal_path(q_table, source, objective):
         optimal_path.append(objective)
 
     return optimal_path
+
+### méthode pour trouver tous les chemins optimal 
+def find_all_valid_paths(env, start, goal, actions):
+    def dfs(current_state, path, paths):
+        if current_state == goal:
+            paths.append(path.copy())
+            return
+        
+        for action in actions:
+            next_state = take_action(current_state, action)
+            
+            if next_state not in path and env[next_state[0], next_state[1]] != 1:
+                path.append(next_state)
+                dfs(next_state, path, paths)
+                path.pop()
+
+    paths = []
+    dfs(start, [start], paths)
+    return paths
+
+
