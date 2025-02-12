@@ -61,7 +61,7 @@ The GUI, implemented using PyQt5, includes:
    ```
 2. Install dependencies:
    ```bash
-   pip install -r numpy matplotlib PyQt5
+   pip install numpy matplotlib PyQt5
    ```
 
 ## Usage
